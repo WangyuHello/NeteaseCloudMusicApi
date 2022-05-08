@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NeteaseCloudMusicApi.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace NeteaseCloudMusicApi {
 	/// <summary>
@@ -92,7 +93,7 @@ namespace NeteaseCloudMusicApi {
 			else if (provider == CloudMusicApiProviders.RelatedPlaylist)
 				json = await HandleRelatedPlaylistAsync(queries);
 			else
-				json = await RequestAsync(provider.Method, provider.Url(queries), provider.Data(queries), provider.Options);
+				json = await RequestAsync(provider.Method, provider.Url(queries), provider.Data(queries), provider.Options, provider);
 			if (throwIfFailed && !IsSuccess(json))
 				throw new HttpRequestException($"调用 '{provider.Route}' 失败",
 					new Exception((json?["msg"] ?? "").ToString()));
@@ -108,7 +109,23 @@ namespace NeteaseCloudMusicApi {
 			return !(json is null || (json["code"] ?? "").ToString() == "301");
 		}
 
-		private async Task<JObject> RequestAsync(HttpMethod method, string url, Dictionary<string, object> data, Options options) {
+		IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions
+		{
+			ExpirationScanFrequency = TimeSpan.FromMinutes(2),
+		});
+		StringBuilder _sb = new StringBuilder();
+
+		string GetRequestKey(string url, Dictionary<string, object> data) {
+			_sb.Clear();
+			_sb.Append(url);
+			foreach (var item in data) {
+				_sb.Append(item.Key);
+				_sb.Append(item.Value.ToString());
+			}
+			return _sb.ToString();
+		}
+
+		private async Task<JObject> RequestAsync(HttpMethod method, string url, Dictionary<string, object> data, Options options, CloudMusicApiProvider provider = null) {
 			if (method is null)
 				throw new ArgumentNullException(nameof(method));
 			if (url is null)
@@ -118,10 +135,29 @@ namespace NeteaseCloudMusicApi {
 			if (options is null)
 				throw new ArgumentNullException(nameof(options));
 
+			string key = GetRequestKey(url, data);
+			bool suc = _cache.TryGetValue(key, out object cacheJson);
+			if (suc) {
+				return (JObject)cacheJson;
+			}
 			var json = await Request.CreateRequest(method.Method, url, data, MergeOptions(options), Cookies);
-			if ((int)json["code"] == 301)
+			if ((int)json["code"] == 301) {
 				json["msg"] = "未登录";
+			} else {
+				_cache.Set(key, json, absoluteExpirationRelativeToNow: GetExpirationTime(provider));
+			}
+				
 			return json;
+		}
+
+		TimeSpan GetExpirationTime(CloudMusicApiProvider provider = null) {
+			if (provider == null) {
+				return TimeSpan.FromMinutes(2);
+			}
+			return provider switch {
+				CloudMusicApiProvider p when p == CloudMusicApiProviders.SongUrl => TimeSpan.FromHours(1),
+				_ => TimeSpan.FromMinutes(2)
+			};
 		}
 
 		private Options MergeOptions(Options options) {
