@@ -634,7 +634,7 @@ namespace NeteaseCloudMusicApi {
 			BuildOptions("eapi",
 				new[] {
 					new Cookie("os", "pc"), new Cookie("_ntes_nuid", new Random().RandomBytes(16).ToHexStringLower())
-				}, null, "/api/song/enhance/player/url"));
+				}, null, "/api/song/enhance/player/url"), TimeSpan.FromDays(1));
 
 
 		/// <summary>
