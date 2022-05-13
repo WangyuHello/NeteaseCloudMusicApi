@@ -415,6 +415,12 @@ namespace NeteaseCloudMusicApi {
 			q => "https://music.163.com/api/toplist", Array.Empty<ParameterInfo>(), BuildOptions("linuxapi"));
 
 		/// <summary>
+		/// 所有榜单内容摘要
+		/// </summary>
+		public static readonly CloudMusicApiProvider ToplistDetail = new CloudMusicApiProvider("/toplist", HttpMethod.Post,
+			q => "https://music.163.com/api/toplist/detail", Array.Empty<ParameterInfo>(), BuildOptions("linuxapi"));
+
+		/// <summary>
 		/// 每日推荐歌曲
 		/// </summary>
 		public static readonly CloudMusicApiProvider RecommendSongs = new CloudMusicApiProvider("/recommend/songs",
