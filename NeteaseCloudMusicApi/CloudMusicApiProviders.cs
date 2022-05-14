@@ -655,6 +655,20 @@ namespace NeteaseCloudMusicApi {
 
 
 		/// <summary>
+		/// 获取音乐评论
+		/// </summary>
+		public static readonly CloudMusicApiProvider CommentMusic = new CloudMusicApiProvider("/comment/music", HttpMethod.Post,
+			q => $"https://music.163.com/api/v1/resource/comments/R_SO_4_{q["id"]}",
+			new[] {
+				new ParameterInfo("rid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 20),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+				new ParameterInfo("beforeTime", ParameterType.Optional, 0),
+			},
+			BuildOptions("eapi", new[] { new Cookie("os", "pc")}), TimeSpan.FromSeconds(30));
+
+
+		/// <summary>
 		/// 获取歌曲详情
 		/// </summary>
 		public static readonly CloudMusicApiProvider SongDetail = new CloudMusicApiProvider("/song/detail",
@@ -667,6 +681,7 @@ namespace NeteaseCloudMusicApi {
 				},
 				new ParameterInfo("ids") {Transformer = JsonArrayTransformer}
 			}, BuildOptions("weapi"));
+
 
 
 		public static readonly CloudMusicApiProvider CloudPub = new CloudMusicApiProvider("/cloud/pub", HttpMethod.Post,
