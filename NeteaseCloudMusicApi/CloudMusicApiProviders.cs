@@ -665,7 +665,7 @@ namespace NeteaseCloudMusicApi {
 				new ParameterInfo("offset", ParameterType.Optional, 0),
 				new ParameterInfo("beforeTime", ParameterType.Optional, 0),
 			},
-			BuildOptions("eapi", new[] { new Cookie("os", "pc")}), TimeSpan.FromSeconds(30));
+			BuildOptions("weapi", new[] { new Cookie("os", "pc")}), TimeSpan.FromSeconds(30));
 
 
 		/// <summary>
