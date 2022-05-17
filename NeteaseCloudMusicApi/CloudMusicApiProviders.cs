@@ -261,7 +261,7 @@ namespace NeteaseCloudMusicApi {
 		public static readonly CloudMusicApiProvider LoginQrCheck = new CloudMusicApiProvider("/login/qr/check",
 			HttpMethod.Post, "https://music.163.com/weapi/login/qrcode/client/login",
 			new[] { new ParameterInfo("key"), new ParameterInfo("type", ParameterType.Constant, 1) },
-			BuildOptions("weapi"));
+			BuildOptions("weapi"), TimeSpan.FromSeconds(1));
 
 		/// <summary>
 		/// 热搜列表(简略)
@@ -595,7 +595,7 @@ namespace NeteaseCloudMusicApi {
 		/// </summary>
 		public static readonly CloudMusicApiProvider LoginStatus = new CloudMusicApiProvider("/login/status",
 			HttpMethod.Post, "https://music.163.com/weapi/w/nuser/account/get", Array.Empty<ParameterInfo>(),
-			BuildOptions("weapi"));
+			BuildOptions("weapi"), TimeSpan.FromSeconds(1));
 
 		/// <summary>
 		/// 获取歌手歌曲

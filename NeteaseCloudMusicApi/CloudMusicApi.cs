@@ -115,6 +115,12 @@ namespace NeteaseCloudMusicApi {
 		});
 		StringBuilder _sb = new StringBuilder();
 
+		public void ClearCache() {
+			_cache = new MemoryCache(new MemoryCacheOptions {
+				ExpirationScanFrequency = TimeSpan.FromMinutes(2),
+			});
+		}
+
 		string GetRequestKey(string url, Dictionary<string, object> data) {
 			_sb.Clear();
 			_sb.Append(url);
