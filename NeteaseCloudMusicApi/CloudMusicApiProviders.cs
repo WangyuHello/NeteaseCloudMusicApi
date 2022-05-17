@@ -369,6 +369,13 @@ namespace NeteaseCloudMusicApi {
 			HttpMethod.Post, q => $"https://music.163.com/weapi/v1/user/detail/{q["uid"]}",
 			Array.Empty<ParameterInfo>(), BuildOptions("weapi"));
 
+		/// <summary>
+		/// 获取用户等级
+		/// </summary>
+		public static readonly CloudMusicApiProvider UserLevel = new CloudMusicApiProvider("/user/level",
+			HttpMethod.Post, "https://music.163.com/weapi/user/level",
+			Array.Empty<ParameterInfo>(), BuildOptions("weapi"));
+
 
 		/// <summary>
 		/// 获取mlog播放地址
