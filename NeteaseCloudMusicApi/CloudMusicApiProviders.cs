@@ -272,6 +272,14 @@ namespace NeteaseCloudMusicApi {
 			BuildOptions("weapi", null, "mobile"));
 
 		/// <summary>
+		/// 热搜列表(详细)
+		/// </summary>
+		public static readonly CloudMusicApiProvider SearchHotDetail = new CloudMusicApiProvider("/search/hot/detail",
+			HttpMethod.Post, "https://music.163.com/weapi/hotsearchlist/get",
+			Array.Empty<ParameterInfo>(),
+			BuildOptions("weapi", null, "mobile"));
+
+		/// <summary>
 		/// 新版评论
 		/// </summary>
 		public static readonly CloudMusicApiProvider CommentNew = new CloudMusicApiProvider("/comment/new",
