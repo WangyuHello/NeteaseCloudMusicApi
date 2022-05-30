@@ -710,6 +710,18 @@ namespace NeteaseCloudMusicApi {
 			BuildOptions("weapi"), TimeSpan.FromDays(1));
 
 		/// <summary>
+		/// 获得相似播放列表
+		/// </summary>
+		public static readonly CloudMusicApiProvider SimiPlayList = new CloudMusicApiProvider("/simi/song", HttpMethod.Post,
+			"https://music.163.com/weapi/discovery/simiPlaylist",
+			new[] {
+				new ParameterInfo("songid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 50),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+			},
+			BuildOptions("weapi"), TimeSpan.FromDays(1));
+
+		/// <summary>
 		/// 最近 5 个听了这首歌的用户
 		/// </summary>
 		public static readonly CloudMusicApiProvider SimiUser = new CloudMusicApiProvider("/simi/song", HttpMethod.Post,
