@@ -150,7 +150,8 @@ namespace NeteaseCloudMusicApi.Utils {
 					if (isEApi && buffer[0] != 0x7B && buffer[1] != 0x22)
 						buffer = Crypto.Decrypt(buffer);
 					// response body前两个字符应该为{"，否则认为是加密的
-					json = JObject.Parse(Encoding.UTF8.GetString(buffer));
+					string str = Encoding.UTF8.GetString(buffer);
+					json = JObject.Parse(str);
 				}
 				catch when (isEApi) {
 					json = JObject.Parse(Encoding.UTF8.GetString(Crypto.Decrypt(buffer)));
