@@ -261,7 +261,7 @@ namespace NeteaseCloudMusicApi {
 		public static readonly CloudMusicApiProvider LoginQrCheck = new CloudMusicApiProvider("/login/qr/check",
 			HttpMethod.Post, "https://music.163.com/weapi/login/qrcode/client/login",
 			new[] { new ParameterInfo("key"), new ParameterInfo("type", ParameterType.Constant, 1) },
-			BuildOptions("weapi"));
+			BuildOptions("weapi"), TimeSpan.FromSeconds(1));
 
 		/// <summary>
 		/// 热搜列表(简略)
@@ -269,6 +269,14 @@ namespace NeteaseCloudMusicApi {
 		public static readonly CloudMusicApiProvider SearchHot = new CloudMusicApiProvider("/search/hot",
 			HttpMethod.Post, "https://music.163.com/weapi/search/hot",
 			new[] { new ParameterInfo("type", ParameterType.Constant, 1111) },
+			BuildOptions("weapi", null, "mobile"));
+
+		/// <summary>
+		/// 热搜列表(详细)
+		/// </summary>
+		public static readonly CloudMusicApiProvider SearchHotDetail = new CloudMusicApiProvider("/search/hot/detail",
+			HttpMethod.Post, "https://music.163.com/weapi/hotsearchlist/get",
+			Array.Empty<ParameterInfo>(),
 			BuildOptions("weapi", null, "mobile"));
 
 		/// <summary>
@@ -369,6 +377,13 @@ namespace NeteaseCloudMusicApi {
 			HttpMethod.Post, q => $"https://music.163.com/weapi/v1/user/detail/{q["uid"]}",
 			Array.Empty<ParameterInfo>(), BuildOptions("weapi"));
 
+		/// <summary>
+		/// 获取用户等级
+		/// </summary>
+		public static readonly CloudMusicApiProvider UserLevel = new CloudMusicApiProvider("/user/level",
+			HttpMethod.Post, "https://music.163.com/weapi/user/level",
+			Array.Empty<ParameterInfo>(), BuildOptions("weapi"));
+
 
 		/// <summary>
 		/// 获取mlog播放地址
@@ -413,6 +428,23 @@ namespace NeteaseCloudMusicApi {
 		/// </summary>
 		public static readonly CloudMusicApiProvider Toplist = new CloudMusicApiProvider("/toplist", HttpMethod.Post,
 			q => "https://music.163.com/api/toplist", Array.Empty<ParameterInfo>(), BuildOptions("linuxapi"));
+
+		/// <summary>
+		/// 所有榜单内容摘要
+		/// </summary>
+		public static readonly CloudMusicApiProvider ToplistDetail = new CloudMusicApiProvider("/toplist", HttpMethod.Post,
+			q => "https://music.163.com/api/toplist/detail", Array.Empty<ParameterInfo>(), BuildOptions("linuxapi"));
+
+		/// <summary>
+		/// 热门歌手数据
+		/// </summary>
+		public static readonly CloudMusicApiProvider TopArtists = new CloudMusicApiProvider("/top/artists", HttpMethod.Post,
+			q => "https://music.163.com/weapi/artist/top", new[]
+			{
+				new ParameterInfo("limit", ParameterType.Optional, 50),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+				new ParameterInfo("total", ParameterType.Constant, true),
+			}, BuildOptions("weapi"));
 
 		/// <summary>
 		/// 每日推荐歌曲
@@ -571,7 +603,7 @@ namespace NeteaseCloudMusicApi {
 		/// </summary>
 		public static readonly CloudMusicApiProvider LoginStatus = new CloudMusicApiProvider("/login/status",
 			HttpMethod.Post, "https://music.163.com/weapi/w/nuser/account/get", Array.Empty<ParameterInfo>(),
-			BuildOptions("weapi"));
+			BuildOptions("weapi"), TimeSpan.FromSeconds(1));
 
 		/// <summary>
 		/// 获取歌手歌曲
@@ -582,7 +614,7 @@ namespace NeteaseCloudMusicApi {
 				new ParameterInfo("work_type", ParameterType.Constant, 1),
 				new ParameterInfo("order", ParameterType.Optional, "hot"), //hot,time
 				new ParameterInfo("offset", ParameterType.Optional, 0), //hot,time
-				new ParameterInfo("limit", ParameterType.Optional, 100), //hot,time
+				new ParameterInfo("limit", ParameterType.Optional, 50), //hot,time
 			}, BuildOptions("weapi", new[] { new Cookie("os", "pc") }));
 
 		/// <summary>
@@ -634,7 +666,21 @@ namespace NeteaseCloudMusicApi {
 			BuildOptions("eapi",
 				new[] {
 					new Cookie("os", "pc"), new Cookie("_ntes_nuid", new Random().RandomBytes(16).ToHexStringLower())
-				}, null, "/api/song/enhance/player/url"));
+				}, null, "/api/song/enhance/player/url"), TimeSpan.FromDays(1));
+
+
+		/// <summary>
+		/// 获取音乐评论
+		/// </summary>
+		public static readonly CloudMusicApiProvider CommentMusic = new CloudMusicApiProvider("/comment/music", HttpMethod.Post,
+			q => $"https://music.163.com/api/v1/resource/comments/R_SO_4_{q["id"]}",
+			new[] {
+				new ParameterInfo("rid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 20),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+				new ParameterInfo("beforeTime", ParameterType.Optional, 0),
+			},
+			BuildOptions("weapi", new[] { new Cookie("os", "pc")}), TimeSpan.FromSeconds(30));
 
 
 		/// <summary>
@@ -650,6 +696,42 @@ namespace NeteaseCloudMusicApi {
 				},
 				new ParameterInfo("ids") {Transformer = JsonArrayTransformer}
 			}, BuildOptions("weapi"));
+
+		/// <summary>
+		/// 获得相似歌曲
+		/// </summary>
+		public static readonly CloudMusicApiProvider SimiSong = new CloudMusicApiProvider("/simi/song", HttpMethod.Post,
+			"https://music.163.com/weapi/v1/discovery/simiSong",
+			new[] {
+				new ParameterInfo("songid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 50),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+			},
+			BuildOptions("weapi"), TimeSpan.FromDays(1));
+
+		/// <summary>
+		/// 获得相似播放列表
+		/// </summary>
+		public static readonly CloudMusicApiProvider SimiPlayList = new CloudMusicApiProvider("/simi/song", HttpMethod.Post,
+			"https://music.163.com/weapi/discovery/simiPlaylist",
+			new[] {
+				new ParameterInfo("songid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 50),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+			},
+			BuildOptions("weapi"), TimeSpan.FromDays(1));
+
+		/// <summary>
+		/// 最近 5 个听了这首歌的用户
+		/// </summary>
+		public static readonly CloudMusicApiProvider SimiUser = new CloudMusicApiProvider("/simi/song", HttpMethod.Post,
+			"https://music.163.com/weapi/discovery/simiUser",
+			new[] {
+				new ParameterInfo("songid") { KeyForwarding = "id" },
+				new ParameterInfo("limit", ParameterType.Optional, 50),
+				new ParameterInfo("offset", ParameterType.Optional, 0),
+			},
+			BuildOptions("weapi"), TimeSpan.FromHours(1));
 
 
 		public static readonly CloudMusicApiProvider CloudPub = new CloudMusicApiProvider("/cloud/pub", HttpMethod.Post,

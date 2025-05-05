@@ -9,9 +9,24 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using HttpClientFactoryLite;
 
 namespace NeteaseCloudMusicApi.Utils {
 	internal static class Request {
+		private static readonly HttpClientFactory _httpClientFactory;
+
+		static Request() {
+			_httpClientFactory = new HttpClientFactory();
+			_httpClientFactory.Register("default",
+				builder => builder
+				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+				{
+					AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+					UseCookies = false,
+				})
+				.SetHandlerLifetime(TimeSpan.FromDays(1)));
+		}
+
 		private static readonly string[] userAgentList = new string[] {
 			// iOS 13.5.1 14.0 beta with safari
 			"Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
@@ -113,16 +128,17 @@ namespace NeteaseCloudMusicApi.Utils {
 			}
 			}
 			try {
-				using var handler = new HttpClientHandler {
-					AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-					UseCookies = false,
-					UseProxy = options.UseProxy					
-				};
-				if (options.UseProxy) { 
-					handler.Proxy = options.Proxy;
-					url = url.Replace("https://","http://");
-				}
-				using var client = new HttpClient(handler);
+				//using var handler = new HttpClientHandler {
+				//	AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+				//	UseCookies = false,
+				//	UseProxy = options.UseProxy					
+				//};
+				//if (options.UseProxy) { 
+				//	handler.Proxy = options.Proxy;
+				//	url = url.Replace("https://","http://");
+				//}
+				//using var client = new HttpClient(handler);
+				var client = _httpClientFactory.CreateClient("default");
 				using var response = await client.SendAsync(url, method, headers, data2);
 				response.EnsureSuccessStatusCode();
 				if (response.Headers.TryGetValues("Set-Cookie", out var rawSetCookie))
@@ -134,7 +150,8 @@ namespace NeteaseCloudMusicApi.Utils {
 					if (isEApi && buffer[0] != 0x7B && buffer[1] != 0x22)
 						buffer = Crypto.Decrypt(buffer);
 					// response body前两个字符应该为{"，否则认为是加密的
-					json = JObject.Parse(Encoding.UTF8.GetString(buffer));
+					string str = Encoding.UTF8.GetString(buffer);
+					json = JObject.Parse(str);
 				}
 				catch when (isEApi) {
 					json = JObject.Parse(Encoding.UTF8.GetString(Crypto.Decrypt(buffer)));

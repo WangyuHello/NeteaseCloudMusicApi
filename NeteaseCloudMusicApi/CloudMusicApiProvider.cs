@@ -19,6 +19,8 @@ namespace NeteaseCloudMusicApi {
 
 		internal Options Options { get; }
 
+		internal TimeSpan CacheExpireTime { get; }
+
 		internal Func<Dictionary<string, object>, Dictionary<string, object>> DataProvider { get; set; }
 
 		internal Func<Dictionary<string, object>, Dictionary<string, object>> Data => DataProvider ?? GetData;
@@ -30,15 +32,16 @@ namespace NeteaseCloudMusicApi {
 			Route = router;
 		}
 
-		internal CloudMusicApiProvider(string router, HttpMethod method, string url, ParameterInfo[] parameterInfos, Options options) : this(router, method, _ => url, parameterInfos, options) {
+		internal CloudMusicApiProvider(string router, HttpMethod method, string url, ParameterInfo[] parameterInfos, Options options, TimeSpan? expireTime = null) : this(router, method, _ => url, parameterInfos, options, expireTime) {
 		}
 
-		internal CloudMusicApiProvider(string router, HttpMethod method, Func<Dictionary<string, object>, string> url, ParameterInfo[] parameterInfos, Options options) {
+		internal CloudMusicApiProvider(string router, HttpMethod method, Func<Dictionary<string, object>, string> url, ParameterInfo[] parameterInfos, Options options, TimeSpan? expireTime = null) {
 			Route = router;
 			Method = method;
 			Url = url;
 			ParameterInfos = parameterInfos;
 			Options = options;
+			CacheExpireTime = expireTime == null ? TimeSpan.FromMinutes(2) : (TimeSpan)expireTime;
 		}
 
 		private Dictionary<string, object> GetData(Dictionary<string, object> queries) {
